@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "SLIPS Morocco"
+version = "1.0.0"
+id = "artifacts/slips-morocco"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20230
+
+[services.development]
+run = "pnpm --filter @workspace/slips-morocco run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/slips-morocco", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/slips-morocco/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20230"
+BASE_PATH = "/"
