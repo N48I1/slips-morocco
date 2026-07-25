@@ -1,491 +1,435 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SLIPS Morocco — A Public Lab Notebook</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#14232B;
-    --ink-soft:#22343D;
-    --paper:#EEF0EA;
-    --paper-2:#E3E6D9;
-    --paper-3:#DBDECD;
-    --amber:#B8834A;
-    --amber-deep:#8F6535;
-    --teal:#2F6E67;
-    --slate:#4C5B60;
-    --rule:#C7CBBB;
-    --white:#FDFEFC;
-    --max:1120px;
-  }
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    margin:0;
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'IBM Plex Sans', sans-serif;
-    font-size:16px;
-    line-height:1.6;
-    -webkit-font-smoothing:antialiased;
-  }
-  h1,h2,h3{
-    font-family:'Fraunces', serif;
-    font-weight:600;
-    letter-spacing:-0.01em;
-    margin:0;
-    color:var(--ink);
-  }
-  a{color:inherit;}
-  .mono{font-family:'IBM Plex Mono', monospace;}
-  .wrap{max-width:var(--max); margin:0 auto; padding:0 28px;}
-
-  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
-    outline:2px solid var(--amber);
-    outline-offset:3px;
-  }
-
-  /* ---------- NAV ---------- */
-  .nav{
-    position:sticky; top:0; z-index:50;
-    background:rgba(238,240,234,0.88);
-    backdrop-filter:blur(6px);
-    border-bottom:1px solid var(--rule);
-  }
-  .nav .wrap{
-    display:flex; align-items:center; justify-content:space-between;
-    height:64px;
-  }
-  .brand{
-    font-family:'Fraunces', serif; font-weight:600; font-size:19px;
-    display:flex; align-items:center; gap:10px; text-decoration:none;
-  }
-  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--amber); display:inline-block;}
-  .navlinks{display:flex; gap:28px; align-items:center;}
-  .navlinks a{
-    font-family:'IBM Plex Mono', monospace; font-size:12.5px; text-decoration:none;
-    color:var(--slate); letter-spacing:0.02em;
-    padding-bottom:2px; border-bottom:1px solid transparent;
-    transition:color .15s, border-color .15s;
-  }
-  .navlinks a:hover{color:var(--ink); border-color:var(--amber);}
-  .nav-cta{
-    font-family:'IBM Plex Mono', monospace; font-size:12.5px;
-    background:var(--ink); color:var(--paper);
-    padding:9px 16px; border-radius:3px; text-decoration:none;
-    white-space:nowrap;
-  }
-  .navlinks-mobile{display:none;}
-  @media (max-width:820px){
-    .navlinks{display:none;}
-  }
-
-  /* ---------- HERO ---------- */
-  .hero{
-    padding:76px 0 64px;
-    border-bottom:1px solid var(--rule);
-  }
-  .hero .wrap{
-    display:grid; grid-template-columns:1.1fr 0.9fr; gap:56px; align-items:center;
-  }
-  .eyebrow{
-    font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--amber-deep);
-    text-transform:uppercase; letter-spacing:0.12em; margin-bottom:18px; display:block;
-  }
-  .hero h1{
-    font-size:clamp(2.2rem, 4.2vw, 3.6rem);
-    line-height:1.05;
-  }
-  .hero h1 em{font-style:italic; color:var(--teal);}
-  .hero p.lede{
-    margin-top:22px; font-size:17px; color:var(--slate); max-width:46ch;
-  }
-  .hero .actions{display:flex; gap:14px; margin-top:32px; flex-wrap:wrap;}
-  .btn{
-    font-family:'IBM Plex Mono', monospace; font-size:13px;
-    padding:12px 20px; border-radius:3px; text-decoration:none;
-    display:inline-flex; align-items:center; gap:8px;
-    border:1px solid var(--ink);
-  }
-  .btn-primary{background:var(--ink); color:var(--paper);}
-  .btn-ghost{background:transparent; color:var(--ink);}
-
-  /* Droplet rig — signature element */
-  .rig{
-    position:relative; height:360px;
-    background:linear-gradient(180deg, var(--white) 0%, var(--paper-2) 100%);
-    border:1px solid var(--rule); border-radius:6px;
-    overflow:hidden;
-  }
-  .rig .caption{
-    position:absolute; top:14px; left:16px; font-size:11px; color:var(--slate);
-    font-family:'IBM Plex Mono', monospace; letter-spacing:0.03em;
-  }
-  .plane{
-    position:absolute; left:-10%; right:-10%; top:56%;
-    height:2px; background:var(--ink);
-    transform:rotate(-9deg); transform-origin:left center;
-  }
-  .bead{
-    position:absolute; width:22px; height:22px; border-radius:50% 50% 50% 4%;
-    background:radial-gradient(circle at 32% 28%, #fff8ec 0%, var(--amber) 46%, var(--amber-deep) 100%);
-    box-shadow:0 3px 8px rgba(20,35,43,0.25);
-    top:38%; left:18%;
-    animation:slide 5.5s cubic-bezier(.45,.05,.55,.95) infinite;
-  }
-  .trail{
-    position:absolute; height:3px; border-radius:2px;
-    background:linear-gradient(90deg, transparent, rgba(184,131,74,0.35));
-    top:47%; left:6%; width:0%;
-    transform:rotate(-9deg); transform-origin:left center;
-    animation:trailgrow 5.5s cubic-bezier(.45,.05,.55,.95) infinite;
-  }
-  @keyframes slide{
-    0%{ left:14%; top:30%; }
-    55%{ left:78%; top:66%; }
-    70%{ left:78%; top:66%; }
-    100%{ left:14%; top:30%; }
-  }
-  @keyframes trailgrow{
-    0%{ width:0%; opacity:0; }
-    8%{ opacity:1; }
-    55%{ width:66%; opacity:1;}
-    62%{ opacity:0; width:66%;}
-    100%{ width:0%; opacity:0;}
-  }
-  .rig .readout{
-    position:absolute; bottom:14px; left:16px; right:16px;
-    display:flex; justify-content:space-between;
-    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--slate);
-    border-top:1px dashed var(--rule); padding-top:10px;
-  }
-  @media (prefers-reduced-motion: reduce){
-    .bead, .trail{ animation:none; left:60%; top:58%; }
-  }
-  @media (max-width:900px){
-    .hero .wrap{grid-template-columns:1fr;}
-    .rig{height:260px;}
-  }
-
-  /* ---------- STATS STRIP ---------- */
-  .stats{
-    border-bottom:1px solid var(--rule);
-    background:var(--paper-2);
-  }
-  .stats .wrap{
-    display:grid; grid-template-columns:repeat(4,1fr);
-    padding:26px 28px;
-  }
-  .stat{
-    padding:0 18px; border-left:1px solid var(--rule);
-  }
-  .stat:first-child{border-left:none;}
-  .stat .num{font-family:'Fraunces', serif; font-size:1.7rem; font-weight:600;}
-  .stat .lbl{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--slate); margin-top:4px;}
-  @media (max-width:820px){
-    .stats .wrap{grid-template-columns:repeat(2,1fr); gap:22px 0;}
-    .stat{border-left:none; padding:0;}
-  }
-
-  /* ---------- ENTRY (notebook page) ---------- */
-  .entry{
-    border-bottom:1px solid var(--rule);
-    padding:64px 0;
-  }
-  .entry .wrap{
-    display:grid; grid-template-columns:200px 1fr; gap:48px;
-  }
-  .entry-margin{
-    border-right:1px solid var(--rule);
-    padding-right:24px;
-  }
-  .entry-num{
-    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--amber-deep);
-    letter-spacing:0.05em;
-  }
-  .entry-title-mini{
-    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--slate);
-    margin-top:10px; line-height:1.5;
-  }
-  .badge{
-    display:inline-block; margin-top:16px; font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px; padding:4px 8px; border-radius:3px; letter-spacing:0.03em;
-  }
-  .badge-done{background:#DCE8DA; color:#2F5C3B;}
-  .badge-progress{background:#F0E3CC; color:var(--amber-deep);}
-  .badge-not{background:#E9E4DE; color:var(--slate);}
-  .entry h2{font-size:clamp(1.6rem,2.6vw,2.1rem); margin-bottom:18px;}
-  .entry .body-copy{color:var(--slate); max-width:64ch;}
-  .entry .body-copy p{margin:0 0 14px 0;}
-  .entry .body-copy strong{color:var(--ink);}
-
-  @media (max-width:820px){
-    .entry .wrap{grid-template-columns:1fr;}
-    .entry-margin{border-right:none; border-bottom:1px solid var(--rule); padding-right:0; padding-bottom:16px;}
-  }
-
-  /* problem stat cards */
-  .cardrow{display:flex; gap:18px; margin:24px 0; flex-wrap:wrap;}
-  .card{
-    background:var(--white); border:1px solid var(--rule); border-radius:6px;
-    padding:18px 20px; flex:1; min-width:220px;
-  }
-  .card .num{font-family:'Fraunces', serif; font-size:1.6rem; font-weight:600; color:var(--teal);}
-  .card .desc{font-size:12.5px; color:var(--slate); margin-top:6px;}
-  .source-note{font-size:11px; color:#8B9088; margin-top:6px; font-style:italic;}
-
-  /* status board */
-  .board{border:1px solid var(--rule); border-radius:6px; overflow:hidden; margin-top:8px;}
-  .board-row{
-    display:grid; grid-template-columns:1fr auto; gap:16px;
-    padding:16px 20px; border-bottom:1px solid var(--rule); background:var(--white);
-    align-items:center;
-  }
-  .board-row:last-child{border-bottom:none;}
-  .board-row .title{font-size:14.5px; color:var(--ink); font-weight:500;}
-  .board-row .sub{font-size:12px; color:var(--slate); margin-top:3px;}
-
-  /* sectors */
-  .sectors{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:8px;}
-  .sector{
-    background:var(--ink); color:var(--paper); border-radius:6px; padding:20px 16px;
-    text-align:center;
-  }
-  .sector .glyph{font-size:22px; margin-bottom:8px;}
-  .sector .name{font-family:'IBM Plex Mono', monospace; font-size:12.5px;}
-  @media (max-width:820px){ .sectors{grid-template-columns:repeat(2,1fr);} }
-
-  /* founder card */
-  .founder{
-    display:flex; gap:22px; align-items:flex-start;
-    background:var(--white); border:1px solid var(--rule); border-radius:6px; padding:24px;
-  }
-  .founder .initial{
-    width:56px; height:56px; border-radius:50%; background:var(--teal); color:var(--white);
-    display:flex; align-items:center; justify-content:center; font-family:'Fraunces', serif;
-    font-size:22px; flex-shrink:0;
-  }
-
-  /* footer / contact */
-  .contact{padding:70px 0 40px;}
-  .contact .wrap{display:grid; grid-template-columns:1fr 1fr; gap:56px;}
-  .contact h2{font-size:clamp(1.8rem,3vw,2.4rem);}
-  .contact-line{display:flex; gap:14px; align-items:baseline; margin-top:22px; padding-top:14px; border-top:1px solid var(--rule);}
-  .contact-line .k{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--slate); width:90px; flex-shrink:0;}
-  .contact-line .v a{text-decoration:none; border-bottom:1px solid var(--rule);}
-  .contact-line .v a:hover{border-color:var(--amber);}
-  .contact-note{color:var(--slate); font-size:14px; max-width:52ch;}
-  footer{
-    border-top:1px solid var(--rule); padding:22px 0; 
-  }
-  footer .wrap{display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--slate); flex-wrap:wrap; gap:8px;}
-  @media (max-width:820px){ .contact .wrap{grid-template-columns:1fr;} }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLIPS Morocco — A Public Lab Notebook</title>
+    <!-- Premium Google Fonts: Fraunces (serif), IBM Plex Mono (monospace), IBM Plex Sans (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Lucide Icons for clean scientific interface -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<nav class="nav">
-  <div class="wrap">
-    <a href="#" class="brand"><span class="dot"></span>SLIPS MOROCCO</a>
-    <div class="navlinks">
-      <a href="#entry-01">01 · Problem</a>
-      <a href="#entry-02">02 · Hypothesis</a>
-      <a href="#entry-03">03 · Status</a>
-      <a href="#entry-04">04 · Founder</a>
-      <a href="#entry-05">05 · Vision</a>
-    </div>
-    <a href="#contact" class="nav-cta">Get in touch</a>
-  </div>
-</nav>
+    <!-- Engineering Grid Background Overlay -->
+    <div class="grid-overlay" aria-hidden="true"></div>
 
-<section class="hero">
-  <div class="wrap">
-    <div>
-      <span class="eyebrow">A public lab notebook — updated as we go</span>
-      <h1>Surfaces that <em>refuse</em><br>to hold on to anything.</h1>
-      <p class="lede">SLIPS Morocco is a pre-seed venture developing liquid-infused coatings for industrial corrosion and fouling. This site is written like our actual notebook: what's proven elsewhere, what we believe, and what we haven't tested yet.</p>
-      <div class="actions">
-        <a href="#entry-01" class="btn btn-primary">Read the notebook →</a>
-        <a href="#contact" class="btn btn-ghost">Get in touch</a>
-      </div>
-    </div>
-    <div class="rig" aria-hidden="true">
-      <span class="caption">FIG. 1 — CONTACT-ANGLE HYSTERESIS, SIMULATED</span>
-      <div class="plane"></div>
-      <div class="trail"></div>
-      <div class="bead"></div>
-      <div class="readout"><span>incline: 9°</span><span>medium: oil-infused pore</span><span>drag: ~0</span></div>
-    </div>
-  </div>
-</section>
-
-<div class="stats">
-  <div class="wrap">
-    <div class="stat"><div class="num">2026</div><div class="lbl">FOUNDED · NADOR, MOROCCO</div></div>
-    <div class="stat"><div class="num">TRL 2</div><div class="lbl">TECHNOLOGY READINESS LEVEL</div></div>
-    <div class="stat"><div class="num">1</div><div class="lbl">FOUNDER, FULL-TIME</div></div>
-    <div class="stat"><div class="num">3</div><div class="lbl">RESEARCH PARTNERS CONTACTED</div></div>
-  </div>
-</div>
-
-<main>
-
-  <section class="entry" id="entry-01">
-    <div class="wrap">
-      <div class="entry-margin">
-        <div class="entry-num">ENTRY 01</div>
-        <div class="entry-title-mini">THE PROBLEM<br>status: <strong>well documented</strong><br>(third-party data)</div>
-        <span class="badge badge-done">sourced</span>
-      </div>
-      <div>
-        <h2>Industrial surfaces lose the fight against corrosion — constantly.</h2>
-        <div class="body-copy">
-          <p>Corrosion and fouling degrade pipes, tanks, hulls and structural steel wherever moisture and industrial chemistry meet metal. The result is unplanned downtime, expensive maintenance cycles, and equipment replaced long before it should be.</p>
-        </div>
-        <div class="cardrow">
-          <div class="card">
-            <div class="num">$2.5T</div>
-            <div class="desc">estimated global cost of corrosion per year — about 3.4% of world GDP</div>
-          </div>
-          <div class="card">
-            <div class="num">~$38B</div>
-            <div class="desc">global anti-corrosion coatings market in 2025, growing ~4–7% a year</div>
-          </div>
-        </div>
-        <p class="source-note">Sources: NACE/AMPP IMPACT Study; market estimates (Vantage, Mordor, DataM, 2025–2026).</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="entry" id="entry-02">
-    <div class="wrap">
-      <div class="entry-margin">
-        <div class="entry-num">ENTRY 02</div>
-        <div class="entry-title-mini">THE HYPOTHESIS<br>status: <strong>grounded in external research</strong><br>not yet tested in-house</div>
-        <span class="badge badge-progress">external evidence only</span>
-      </div>
-      <div>
-        <h2>Our hypothesis rests on real, published science — we haven't run our own experiments yet.</h2>
-        <div class="body-copy">
-          <p>We're working from SLIPS — <strong>Slippery Liquid-Infused Porous Surfaces</strong> — first developed at Harvard's Wyss Institute in 2011, inspired by the Nepenthes pitcher plant, whose naturally slippery rim lets nothing keep its footing.</p>
-          <p>A porous surface is deliberately pre-filled with a liquid. Once every pore is occupied, water, oil, salt spray or biofilm simply have nowhere to grip — they slide off a continuous liquid film instead of bonding to a solid one.</p>
-          <p><strong>Commercial proof this scales:</strong> LiquiGlide, an MIT spin-off, has taken the same underlying principle to market — from consumer packaging to its CleanTanX™ system for industrial tanks, oil & gas, and paint manufacturing, now serving 30+ paying industrial clients.</p>
-          <p>What's still ours to prove: whether our own formulation holds up on the substrates and conditions our target industries actually use. That's exactly what Entry 03 is about.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="entry" id="entry-03">
-    <div class="wrap">
-      <div class="entry-margin">
-        <div class="entry-num">ENTRY 03</div>
-        <div class="entry-title-mini">WHERE WE ACTUALLY ARE<br>status: <strong>ideation</strong><br>no lab data yet</div>
-        <span class="badge badge-not">pre-lab</span>
-      </div>
-      <div>
-        <h2>No lab results to show yet — here's exactly what's true today.</h2>
-        <div class="body-copy">
-          <p>We'd rather show you the real state of things than a polished version of it. SLIPS Morocco (SARL, Nador) is legally incorporated. Beyond that, we are still at the ideation stage — no coating has been made or tested in a lab yet.</p>
-        </div>
-        <div class="board">
-          <div class="board-row">
-            <div><div class="title">Company incorporated</div><div class="sub">SARL registered in Nador, Morocco</div></div>
-            <span class="badge badge-done">done</span>
-          </div>
-          <div class="board-row">
-            <div><div class="title">Materials characterization — CNRST (UATRS platform)</div><div class="sub">Wettability, roughness and corrosion-resistance testing for first samples</div></div>
-            <span class="badge badge-progress">outreach sent</span>
-          </div>
-          <div class="board-row">
-            <div><div class="title">Advanced materials R&D — Fondation MAScIR</div><div class="sub">Requested a technical collaboration on formulation and validation</div></div>
-            <span class="badge badge-progress">outreach sent</span>
-          </div>
-          <div class="board-row">
-            <div><div class="title">Academic partnership — UM6P (Materials Science, Energy &amp; Nanoengineering)</div><div class="sub">Prof. Jones Alami (CRO) responded, forwarded to their Innovation lead</div></div>
-            <span class="badge badge-progress">response received</span>
-          </div>
-          <div class="board-row">
-            <div><div class="title">First lab-tested sample</div><div class="sub">Depends on lab access above</div></div>
-            <span class="badge badge-not">not started</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="entry" id="entry-04">
-    <div class="wrap">
-      <div class="entry-margin">
-        <div class="entry-num">ENTRY 04</div>
-        <div class="entry-title-mini">WHO'S BEHIND THIS<br>status: <strong>solo founder</strong><br>actively hiring</div>
-        <span class="badge badge-progress">team of 1</span>
-      </div>
-      <div>
-        <h2>One founder, building the case to bring in the rest.</h2>
-        <div class="founder">
-          <div class="initial">MB</div>
-          <div>
-            <div style="font-family:'Fraunces',serif; font-size:18px; font-weight:600;">Mohamed Baltit — Founder &amp; CEO</div>
-            <div class="body-copy" style="margin-top:8px;">
-              <p>Background in psychology and intercultural mediation, not materials science by training. Self-taught in SLIPS science through technical videos, conversations with chemist peers, and attending the 4th Chemistry Conference in Rabat.</p>
-              <p>Currently the only full-time person on this. Actively looking for a materials science / chemical engineering co-founder or early hire to lead technical validation.</p>
+    <!-- Navigation Header -->
+    <nav class="nav" id="navbar">
+        <div class="wrap">
+            <a href="#" class="brand">
+                <span class="dot"></span>
+                <span class="brand-text">SLIPS <span class="brand-sub">MOROCCO</span></span>
+            </a>
+            <div class="navlinks" id="navLinks">
+                <a href="#entry-01">01 &middot; Problem</a>
+                <a href="#entry-02">02 &middot; Hypothesis</a>
+                <a href="#entry-03">03 &middot; Status</a>
+                <a href="#entry-04">04 &middot; Founder</a>
+                <a href="#entry-05">05 &middot; Vision</a>
             </div>
-          </div>
+            <div class="nav-right">
+                <a href="#contact" class="nav-cta">Get in Touch</a>
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu">
+                    <i data-lucide="menu"></i>
+                </button>
+            </div>
         </div>
-      </div>
-    </div>
-  </section>
+    </nav>
 
-  <section class="entry" id="entry-05" style="border-bottom:none;">
-    <div class="wrap">
-      <div class="entry-margin">
-        <div class="entry-num">ENTRY 05</div>
-        <div class="entry-title-mini">WHERE THIS COULD GO<br>status: <strong>direction, not a promise</strong></div>
-        <span class="badge badge-progress">roadmap</span>
-      </div>
-      <div>
-        <h2>Four industries with the same problem, one coating.</h2>
-        <div class="sectors">
-          <div class="sector"><div class="glyph">⚙️</div><div class="name">INDUSTRY</div></div>
-          <div class="sector"><div class="glyph">🏗️</div><div class="name">CONSTRUCTION</div></div>
-          <div class="sector"><div class="glyph">⚓</div><div class="name">MARITIME</div></div>
-          <div class="sector"><div class="glyph">🔩</div><div class="name">MANUFACTURERS</div></div>
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="wrap">
+            <div class="hero-content">
+                <span class="eyebrow"><i data-lucide="book-open"></i> A public lab notebook — updated as we go</span>
+                <h1 class="hero-title">
+                    Surfaces that <span class="serif-italic">refuse</span><br>to hold on to anything.
+                </h1>
+                <p class="lede">
+                    SLIPS Morocco is a pre-seed venture developing liquid-infused coatings for industrial corrosion and fouling. This site is written like our actual notebook: what's proven elsewhere, what we believe, and what we haven't tested yet.
+                </p>
+                <div class="actions">
+                    <a href="#entry-01" class="btn btn-primary">Read the Notebook <i data-lucide="arrow-right"></i></a>
+                    <a href="#contact" class="btn btn-ghost">Get in Touch</a>
+                </div>
+            </div>
+            
+            <!-- Interactive Droplet Simulator Rig -->
+            <div class="rig-container">
+                <div class="rig" id="dropletRig" aria-hidden="true">
+                    <span class="caption">FIG. 1 — CONTACT-ANGLE HYSTERESIS, SIMULATED</span>
+                    <div class="plane-axis">
+                        <div class="plane" id="rigPlane"></div>
+                        <div class="trail" id="rigTrail"></div>
+                        <div class="bead" id="rigBead"></div>
+                    </div>
+                    <div class="readout">
+                        <span>incline: <strong id="readoutIncline">9°</strong></span>
+                        <span>medium: <strong id="readoutMedium">oil-infused pore (SLIPS)</strong></span>
+                        <span>drag: <strong id="readoutDrag">~0 mN/m</strong></span>
+                    </div>
+                </div>
+                
+                <!-- Rig Control Dashboard -->
+                <div class="rig-controls">
+                    <div class="control-group">
+                        <div class="control-header">
+                            <label for="inclineSlider">Incline Angle</label>
+                            <span class="control-value" id="inclineValue">9°</span>
+                        </div>
+                        <input type="range" id="inclineSlider" min="2" max="30" value="9" class="slider">
+                    </div>
+                    <div class="control-group">
+                        <span class="control-label">Coating Medium</span>
+                        <div class="toggle-group">
+                            <button class="toggle-btn active" data-medium="slips">SLIPS (Oil-Infused)</button>
+                            <button class="toggle-btn" data-medium="standard">Standard Solid Coat</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="body-copy" style="margin-top:22px;">
-          <p>If the lab work validates our hypothesis, our plan is direct B2B contracts with industrial operators in Morocco, then North Africa, ahead of any wider expansion — no promises beyond what the data supports.</p>
+    </header>
+
+    <!-- Stats Bar -->
+    <section class="stats">
+        <div class="wrap">
+            <div class="stat">
+                <div class="num">2026</div>
+                <div class="lbl">FOUNDED &middot; NADOR, MOROCCO</div>
+            </div>
+            <div class="stat">
+                <div class="num">TRL 2</div>
+                <div class="lbl">TECHNOLOGY READINESS LEVEL</div>
+            </div>
+            <div class="stat">
+                <div class="num">1</div>
+                <div class="lbl">FOUNDER, FULL-TIME</div>
+            </div>
+            <div class="stat">
+                <div class="num">3</div>
+                <div class="lbl">RESEARCH PARTNERS CONTACTED</div>
+            </div>
         </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-</main>
+    <!-- Main Notebook Contents -->
+    <main>
 
-<section class="contact" id="contact">
-  <div class="wrap">
-    <div>
-      <span class="eyebrow">Entry 06 — Open thread</span>
-      <h2>Talk to us before we've<br>polished anything.</h2>
-      <p class="contact-note" style="margin-top:16px;">We're most useful to talk to right now if you run a lab, work in materials science, or manage industrial equipment exposed to corrosion — not once we have a finished pitch.</p>
-    </div>
-    <div>
-      <div class="contact-line"><span class="k mono">EMAIL</span><span class="v"><a href="mailto:momobaltit30@gmail.com">momobaltit30@gmail.com</a></span></div>
-      <div class="contact-line"><span class="k mono">LOCATION</span><span class="v">Nador, Morocco</span></div>
-      <div class="contact-line"><span class="k mono">STAGE</span><span class="v">Pre-seed · Ideation · TRL 2</span></div>
-    </div>
-  </div>
-</section>
+        <!-- Entry 01: The Problem -->
+        <section class="entry" id="entry-01">
+            <div class="wrap">
+                <div class="entry-margin">
+                    <div class="entry-num">ENTRY 01</div>
+                    <div class="entry-title-mini">
+                        THE PROBLEM<br>
+                        status: <strong>well documented</strong><br>
+                        (third-party data)
+                    </div>
+                    <span class="badge badge-done"><i data-lucide="check-circle"></i> sourced</span>
+                </div>
+                <div class="entry-body">
+                    <h2>Industrial surfaces lose the fight against corrosion — constantly.</h2>
+                    <div class="body-copy">
+                        <p>Corrosion and fouling degrade pipes, tanks, hulls and structural steel wherever moisture and industrial chemistry meet metal. The result is unplanned downtime, expensive maintenance cycles, and equipment replaced long before it should be.</p>
+                    </div>
+                    <div class="cardrow">
+                        <div class="card">
+                            <div class="num">$2.5T</div>
+                            <div class="desc">Estimated global cost of corrosion per year — about 3.4% of world GDP</div>
+                        </div>
+                        <div class="card">
+                            <div class="num">~$38B</div>
+                            <div class="desc">Global anti-corrosion coatings market in 2025, growing ~4–7% a year</div>
+                        </div>
+                    </div>
+                    <p class="source-note">Sources: NACE/AMPP IMPACT Study; market estimates (Vantage, Mordor, DataM, 2025–2026).</p>
+                </div>
+            </div>
+        </section>
 
-<footer>
-  <div class="wrap">
-    <span>© 2026 SLIPS MOROCCO</span>
-    <span>LAST NOTEBOOK UPDATE: JULY 2026</span>
-  </div>
-</footer>
+        <!-- Entry 02: The Hypothesis -->
+        <section class="entry" id="entry-02">
+            <div class="wrap">
+                <div class="entry-margin">
+                    <div class="entry-num">ENTRY 02</div>
+                    <div class="entry-title-mini">
+                        THE HYPOTHESIS<br>
+                        status: <strong>grounded in research</strong><br>
+                        not yet tested in-house
+                    </div>
+                    <span class="badge badge-progress"><i data-lucide="info"></i> external evidence</span>
+                </div>
+                <div class="entry-body">
+                    <h2>Our hypothesis rests on real, published science — we haven't run our own experiments yet.</h2>
+                    <div class="body-copy">
+                        <p>We're working from SLIPS — <strong>Slippery Liquid-Infused Porous Surfaces</strong> — first developed at Harvard's Wyss Institute in 2011, inspired by the Nepenthes pitcher plant, whose naturally slippery rim lets nothing keep its footing.</p>
+                        
+                        <!-- Visual Microscopic Asset -->
+                        <div class="scientific-visual reveal-on-scroll">
+                            <img src="assets/microscopic.jpg" alt="Microscopic 3D render of Slippery Liquid-Infused Porous Surfaces">
+                            <div class="visual-caption">
+                                <strong>FIG. 2 &mdash; POROUS INFUSED STRUCTURE (CONCEPTUAL)</strong>: Hydrophobic porous nanostructures lock a lubricating film (oil layer) in place, creating a molecularly smooth liquid shield. Water droplets bead up and slide off effortlessly.
+                            </div>
+                        </div>
 
+                        <p>A porous surface is deliberately pre-filled with a liquid. Once every pore is occupied, water, oil, salt spray or biofilm simply have nowhere to grip — they slide off a continuous liquid film instead of bonding to a solid one.</p>
+                        
+                        <div class="highlight-box">
+                            <h5>Commercial proof this scales:</h5>
+                            <p>LiquiGlide, an MIT spin-off, has taken the same underlying principle to market — from consumer packaging to its CleanTanX™ system for industrial tanks, oil & gas, and paint manufacturing, now serving 30+ paying industrial clients.</p>
+                        </div>
+                        
+                        <p>What's still ours to prove: whether our own formulation holds up on the substrates and conditions our target industries actually use. That's exactly what Entry 03 is about.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Entry 03: Where We Actually Are -->
+        <section class="entry" id="entry-03">
+            <div class="wrap">
+                <div class="entry-margin">
+                    <div class="entry-num">ENTRY 03</div>
+                    <div class="entry-title-mini">
+                        WHERE WE ACTUALLY ARE<br>
+                        status: <strong>ideation</strong><br>
+                        no lab data yet
+                    </div>
+                    <span class="badge badge-not"><i data-lucide="flask-conical"></i> pre-lab</span>
+                </div>
+                <div class="entry-body">
+                    <h2>No lab results to show yet — here's exactly what's true today.</h2>
+                    <div class="body-copy">
+                        <p>We'd rather show you the real state of things than a polished version of it. SLIPS Morocco (SARL, Nador) is legally incorporated. Beyond that, we are still at the ideation stage — no coating has been made or tested in a lab yet.</p>
+                    </div>
+                    
+                    <!-- Interactive Lab Timeline / Status Board -->
+                    <div class="board">
+                        <div class="board-header">
+                            <h4>Development Status Board</h4>
+                            <span class="board-update">Last Updated: July 2026</span>
+                        </div>
+                        <div class="board-row completed">
+                            <div class="board-cell-info">
+                                <div class="title">Company Incorporated</div>
+                                <div class="sub">SARL registered in Nador, Morocco</div>
+                            </div>
+                            <span class="status-badge status-done"><i data-lucide="check"></i> Done</span>
+                        </div>
+                        <div class="board-row in-progress">
+                            <div class="board-cell-info">
+                                <div class="title">Materials characterization — CNRST (UATRS platform)</div>
+                                <div class="sub">Wettability, roughness and corrosion-resistance testing for first samples</div>
+                            </div>
+                            <span class="status-badge status-progress"><i data-lucide="mail"></i> Outreach Sent</span>
+                        </div>
+                        <div class="board-row in-progress">
+                            <div class="board-cell-info">
+                                <div class="title">Advanced materials R&D — Fondation MAScIR</div>
+                                <div class="sub">Requested a technical collaboration on formulation and validation</div>
+                            </div>
+                            <span class="status-badge status-progress"><i data-lucide="mail"></i> Outreach Sent</span>
+                        </div>
+                        <div class="board-row active-step">
+                            <div class="board-cell-info">
+                                <div class="title">Academic partnership — UM6P (Materials Science, Energy &amp; Nanoengineering)</div>
+                                <div class="sub">Prof. Jones Alami (CRO) responded, forwarded to their Innovation lead</div>
+                            </div>
+                            <span class="status-badge status-response"><i data-lucide="message-square"></i> Response Received</span>
+                        </div>
+                        <div class="board-row pending">
+                            <div class="board-cell-info">
+                                <div class="title">First lab-tested sample</div>
+                                <div class="sub">Depends on lab access & formulation validation above</div>
+                            </div>
+                            <span class="status-badge status-pending"><i data-lucide="clock"></i> Not Started</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Entry 04: Who's Behind This -->
+        <section class="entry" id="entry-04">
+            <div class="wrap">
+                <div class="entry-margin">
+                    <div class="entry-num">ENTRY 04</div>
+                    <div class="entry-title-mini">
+                        WHO'S BEHIND THIS<br>
+                        status: <strong>solo founder</strong><br>
+                        actively hiring
+                    </div>
+                    <span class="badge badge-progress"><i data-lucide="users"></i> team of 1</span>
+                </div>
+                <div class="entry-body">
+                    <h2>One founder, building the case to bring in the rest.</h2>
+                    <div class="founder">
+                        <div class="founder-card-header">
+                            <div class="initial">MB</div>
+                            <div class="founder-identity">
+                                <h3>Mohamed Baltit</h3>
+                                <p class="founder-title">Founder &amp; CEO, SLIPS Morocco</p>
+                            </div>
+                        </div>
+                        <div class="body-copy">
+                            <p>Background in psychology and intercultural mediation, not materials science by training. Self-taught in SLIPS science through technical videos, conversations with chemist peers, and attending the 4th Chemistry Conference in Rabat.</p>
+                            <p>Currently the only full-time person on this. Actively looking for a materials science / chemical engineering co-founder or early hire to lead technical validation.</p>
+                        </div>
+                        <div class="hiring-callout">
+                            <i data-lucide="briefcase" class="callout-icon"></i>
+                            <div>
+                                <h5>Co-Founder Search</h5>
+                                <p>Are you a chemical engineer or research scientist in Morocco? We are looking for a technical lead to manage materials synthesis. <a href="#contact" class="callout-link">Join the project &rarr;</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Entry 05: Vision -->
+        <section class="entry" id="entry-05">
+            <div class="wrap">
+                <div class="entry-margin">
+                    <div class="entry-num">ENTRY 05</div>
+                    <div class="entry-title-mini">
+                        WHERE THIS COULD GO<br>
+                        status: <strong>direction</strong>
+                    </div>
+                    <span class="badge badge-progress"><i data-lucide="compass"></i> roadmap</span>
+                </div>
+                <div class="entry-body">
+                    <h2>Four industries with the same problem, one coating.</h2>
+                    
+                    <div class="sectors">
+                        <div class="sector">
+                            <div class="glyph"><i data-lucide="settings"></i></div>
+                            <div class="name">Industrial Piping</div>
+                            <p class="sector-desc">Preventing scale buildup and friction loss in transport pipelines.</p>
+                        </div>
+                        <div class="sector">
+                            <div class="glyph"><i data-lucide="building-2"></i></div>
+                            <div class="name">Construction</div>
+                            <p class="sector-desc">Protecting structural steel frames from salt-fog and corrosion.</p>
+                        </div>
+                        <div class="sector">
+                            <div class="glyph"><i data-lucide="anchor"></i></div>
+                            <div class="name">Maritime Vessels</div>
+                            <p class="sector-desc">Eco-friendly anti-fouling coatings for hulls without toxic biocide leak.</p>
+                        </div>
+                        <div class="sector">
+                            <div class="glyph"><i data-lucide="wrench"></i></div>
+                            <div class="name">Manufacturers</div>
+                            <p class="sector-desc">Increasing lifespan of heavy machinery and storage tanks.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Lab Validation Visual -->
+                    <div class="scientific-visual reveal-on-scroll" style="margin-top: 3rem;">
+                        <img src="assets/lab_test.jpg" alt="Advanced laboratory equipment test for anti-corrosion coating validation">
+                        <div class="visual-caption">
+                            <strong>FIG. 3 &mdash; TESTING AND VALIDATION STATION (PROJECTION)</strong>: Conceptual testing setup to measure sliding velocities and corrosion metrics of first candidate formulations against simulated industrial runoffs.
+                        </div>
+                    </div>
+
+                    <div class="body-copy" style="margin-top: 2rem;">
+                        <p>If the lab work validates our hypothesis, our plan is direct B2B contracts with industrial operators in Morocco, then North Africa, ahead of any wider expansion — no promises beyond what the data supports.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Contact & inquiry Form -->
+    <section class="contact" id="contact">
+        <div class="wrap">
+            <div class="contact-info">
+                <span class="eyebrow"><i data-lucide="message-square"></i> Entry 06 &mdash; Open thread</span>
+                <h2>Talk to us before we've polished anything.</h2>
+                <p class="contact-note">
+                    We're most useful to talk to right now if you run a lab, work in materials science, or manage industrial equipment exposed to corrosion — not once we have a finished pitch.
+                </p>
+                <div class="meta-list">
+                    <div class="contact-line">
+                        <span class="k">EMAIL</span>
+                        <span class="v"><a href="mailto:momobaltit30@gmail.com">momobaltit30@gmail.com</a></span>
+                    </div>
+                    <div class="contact-line">
+                        <span class="k">LOCATION</span>
+                        <span class="v">Nador, Morocco</span>
+                    </div>
+                    <div class="contact-line">
+                        <span class="k">STAGE</span>
+                        <span class="v">Pre-seed &middot; Ideation &middot; TRL 2</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-form-container">
+                <form id="inquiryForm" class="tech-form">
+                    <h4>Submit an Inquiry or Partnership Request</h4>
+                    <p class="form-sub">For academic research collaborations, materials testing facilities, or early team applications.</p>
+                    
+                    <div class="input-group">
+                        <input type="text" id="name" required placeholder=" ">
+                        <label for="name">Your Name / Principal Investigator</label>
+                    </div>
+                    
+                    <div class="input-group">
+                        <input type="email" id="email" required placeholder=" ">
+                        <label for="email">Institutional Email Address</label>
+                    </div>
+
+                    <div class="input-group">
+                        <select id="interest" required>
+                            <option value="" disabled selected hidden>Choose Subject Area</option>
+                            <option value="research">R&D / Academic Technical Partnership</option>
+                            <option value="cofounder">Co-founder or Technical Hiring Interest</option>
+                            <option value="facility">Materials Characterization Lab Access</option>
+                            <option value="industrial">Industrial Application Trial</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <textarea id="message" rows="4" required placeholder=" "></textarea>
+                        <label for="message">Details on potential collaboration...</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-submit" id="submitBtn">
+                        <span>Send Transmission</span>
+                        <i data-lucide="send"></i>
+                    </button>
+                </form>
+
+                <div class="form-success" id="formSuccess">
+                    <div class="success-icon-wrapper">
+                        <i data-lucide="file-check" class="success-icon"></i>
+                    </div>
+                    <h3>Transmission Sent</h3>
+                    <p>Mohamed Baltit will receive your notebook message directly at momobaltit30@gmail.com. We aim to review chemistry and facility collaborations within 48 hours.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="wrap">
+            <span>&copy; 2026 SLIPS MOROCCO</span>
+            <div class="footer-links">
+                <a href="#dropletRig">droplet-simulator.log</a>
+                <span>&middot;</span>
+                <span>LAST UPDATE: JULY 2026</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Logic Script -->
+    <script src="script.js"></script>
 </body>
 </html>

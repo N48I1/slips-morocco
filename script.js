@@ -6,29 +6,27 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     }
 
-    // 2. Navbar Scroll Effect
+    // 2. Navbar Scroll Style Shift
     const navbar = document.getElementById('navbar');
     const handleScroll = () => {
-        if (window.scrollY > 50) {
+        if (window.scrollY > 20) {
             navbar.classList.add('scrolled');
         } else {
             navbar.classList.remove('scrolled');
         }
     };
     window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial check
+    handleScroll();
 
     // 3. Mobile Navigation Menu Toggle
     const menuToggle = document.getElementById('menuToggle');
     const navLinks = document.getElementById('navLinks');
-    const menuIcon = menuToggle.querySelector('i');
 
     if (menuToggle && navLinks) {
         menuToggle.addEventListener('click', () => {
             navLinks.classList.toggle('active');
             const isActive = navLinks.classList.contains('active');
             
-            // Toggle menu icon between burger and close
             if (isActive) {
                 menuToggle.innerHTML = '<i data-lucide="x"></i>';
             } else {
@@ -37,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
         });
 
-        // Close mobile menu when clicking a link
+        // Close menu when clicking link
         navLinks.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 navLinks.classList.remove('active');
@@ -47,130 +45,166 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 4. Scroll Reveal Animations (Intersection Observer)
-    const revealElements = document.querySelectorAll('.reveal-on-scroll, .collection-card, .craft-card');
-    
-    // Add reveal-on-scroll style helper dynamically
-    revealElements.forEach(el => {
-        el.classList.add('reveal-on-scroll');
-    });
-
+    // 4. Scroll Reveal IntersectionObserver
+    const revealElements = document.querySelectorAll('.reveal-on-scroll');
     const revealObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('revealed');
-                observer.unobserve(entry.target); // Only trigger once
+                observer.unobserve(entry.target);
             }
         });
     }, {
-        threshold: 0.15,
-        rootMargin: '0px 0px -50px 0px'
+        threshold: 0.1,
+        rootMargin: '0px 0px -40px 0px'
     });
 
-    revealElements.forEach(el => {
-        revealObserver.observe(el);
-    });
+    revealElements.forEach(el => revealObserver.observe(el));
 
-    // 5. Interactive Dye Studio Swatches
-    const swatches = document.querySelectorAll('.swatch-btn');
-    const dyeTitle = document.getElementById('dyeTitle');
-    const dyeSource = document.getElementById('dyeSource');
-    const dyeTime = document.getElementById('dyeTime');
-    const dyeText = document.getElementById('dyeText');
-    const previewImage = document.getElementById('previewImage');
-    const previewColorOverlay = document.getElementById('previewColorOverlay');
-    const previewBadge = document.getElementById('previewBadge');
+    // 5. Interactive Droplet Simulator Physics Rig
+    const rigPlane = document.getElementById('rigPlane');
+    const rigBead = document.getElementById('rigBead');
+    const rigTrail = document.getElementById('rigTrail');
+    const inclineSlider = document.getElementById('inclineSlider');
+    const inclineValue = document.getElementById('inclineValue');
+    
+    const readoutIncline = document.getElementById('readoutIncline');
+    const readoutMedium = document.getElementById('readoutMedium');
+    const readoutDrag = document.getElementById('readoutDrag');
+    const toggleBtns = document.querySelectorAll('.toggle-btn');
 
-    const dyeData = {
-        terracotta: {
-            title: 'Marrakech Clay (Terracotta)',
-            source: 'Madder Root',
-            time: '24 Hours',
-            text: 'Yielding deep earthy tones that capture the warm terracotta brickwork of ancient Marrakech Medina. It evokes warmth, stability, and connection to the Moroccan earth.',
-            image: 'assets/terracotta.jpg',
-            overlayColor: 'rgba(184, 90, 63, 0.15)'
-        },
-        emerald: {
-            title: 'Atlas Emerald',
-            source: 'Wild Indigo & Pomegranate',
-            time: '48 Hours',
-            text: 'A deep forest green inspired by the cedar forests of the Middle Atlas. Formulated from indigo leaves and iron tannin bath for rich longevity.',
-            image: 'assets/emerald.jpg',
-            overlayColor: 'rgba(31, 63, 52, 0.2)'
-        },
-        saffron: {
-            title: 'Taliouine Saffron (Gold)',
-            source: 'Saffron Threads',
-            time: '12 Hours',
-            text: 'A vibrant golden-orange reflecting the precious saffron fields of Taliouine. It captures the golden hour sun striking the courtyard riads.',
-            image: 'assets/hero.jpg',
-            overlayColor: 'rgba(226, 155, 60, 0.15)'
-        },
-        rose: {
-            title: 'Kelaat M\'gouna Rose',
-            source: 'Rose Petals & Madder',
-            time: '18 Hours',
-            text: 'A delicate dusty rose tint obtained from the Valley of Roses. Soft, romantic, and reminiscent of shifting desert dunes under the dawn light.',
-            image: 'assets/terracotta.jpg',
-            overlayColor: 'rgba(211, 162, 151, 0.25)'
+    let incline = parseInt(inclineSlider.value);
+    let coatingMedium = 'slips'; // default
+    
+    // Physics simulation variables
+    let currentLeft = 15; // in percentage
+    let velocity = 0;
+    let animId = null;
+    let delayTimer = 0; // timer for loops delay
+    let stickSlipCounter = 0;
+
+    const updateRigDisplay = () => {
+        // Rotate the plane container based on incline angle
+        rigPlane.style.transform = `rotate(${-incline}deg)`;
+        
+        // Update readout displays
+        readoutIncline.textContent = `${incline}°`;
+        inclineValue.textContent = `${incline}°`;
+        
+        if (coatingMedium === 'slips') {
+            readoutMedium.textContent = 'oil-infused pore (SLIPS)';
+            readoutDrag.textContent = '~0 mN/m (sliding angle < 2°)';
+        } else {
+            readoutMedium.textContent = 'rough solid coating';
+            readoutDrag.textContent = '~54 mN/m (pinned state)';
         }
     };
 
-    swatches.forEach(swatch => {
-        swatch.addEventListener('click', () => {
-            // Remove active from all
-            swatches.forEach(s => s.classList.remove('active'));
-            // Add active to current
-            swatch.classList.add('active');
+    const simulationLoop = () => {
+        // Handle post-slide delay before looping back
+        if (delayTimer > 0) {
+            delayTimer--;
+            animId = requestAnimationFrame(simulationLoop);
+            return;
+        }
 
-            const colorKey = swatch.getAttribute('data-color');
-            const data = dyeData[colorKey];
+        const rad = (incline * Math.PI) / 180;
+        const gForce = Math.sin(rad); // gravity slide force component
 
-            if (data) {
-                // Fade out details transition
-                const detailsContainer = document.getElementById('paletteDetails');
-                detailsContainer.style.opacity = 0;
-                detailsContainer.style.transform = 'translateY(10px)';
-
-                setTimeout(() => {
-                    dyeTitle.textContent = data.title;
-                    dyeSource.textContent = data.source;
-                    dyeTime.textContent = data.time;
-                    dyeText.textContent = data.text;
-                    previewImage.src = data.image;
-                    previewColorOverlay.style.backgroundColor = data.overlayColor;
-                    previewBadge.textContent = colorKey.charAt(0).toUpperCase() + colorKey.slice(1);
-
-                    detailsContainer.style.opacity = 1;
-                    detailsContainer.style.transform = 'translateY(0)';
-                }, 300);
+        if (coatingMedium === 'slips') {
+            // SLIPS: slide easily, negligible friction
+            const friction = 0.02;
+            const acceleration = Math.max(0, gForce * 0.35 - friction);
+            
+            velocity += acceleration;
+            velocity = Math.min(velocity, 2.5); // cap speed
+            currentLeft += velocity;
+            
+            // Render bead and trail
+            rigBead.style.left = `${currentLeft}%`;
+            rigBead.style.top = `calc(50% - 24px + ${Math.tan(-rad) * (currentLeft - 50) * 1.5}px)`; // follow tilted plane
+            
+            const trailWidth = Math.max(0, currentLeft - 20);
+            rigTrail.style.width = `${trailWidth}%`;
+            rigTrail.style.transform = `rotate(${-incline}deg)`;
+            
+            if (currentLeft >= 78) {
+                // reset at the bottom
+                delayTimer = 60; // 1 second delay
+                currentLeft = 15;
+                velocity = 0;
             }
+        } else {
+            // Standard Solid Coat: high static friction. Needs high incline to move at all.
+            const staticFrictionThreshold = 0.28; // corresponds to approx 16 degrees
+            
+            if (gForce < staticFrictionThreshold) {
+                // Stays pinned at starting point
+                currentLeft = 15;
+                velocity = 0;
+                rigBead.style.left = `${currentLeft}%`;
+                rigBead.style.top = `calc(50% - 24px + ${Math.tan(-rad) * (currentLeft - 50) * 1.5}px)`;
+                rigTrail.style.width = '0%';
+            } else {
+                // Sliding starts but with high kinetic friction and stick-slip chatter
+                const kineticFriction = 0.24;
+                // Add a small sine wave stickiness vibration to simulate droplets dragging/chattering on solid coating
+                stickSlipCounter += 0.2;
+                const stickSlipJitter = Math.sin(stickSlipCounter) * 0.08;
+                
+                const acceleration = Math.max(0, gForce * 0.2 - kineticFriction + stickSlipJitter);
+                velocity += acceleration;
+                velocity = Math.min(velocity, 0.8); // much slower than SLIPS
+                currentLeft += velocity;
+                
+                rigBead.style.left = `${currentLeft}%`;
+                rigBead.style.top = `calc(50% - 24px + ${Math.tan(-rad) * (currentLeft - 50) * 1.5}px)`;
+                
+                const trailWidth = Math.max(0, currentLeft - 20);
+                rigTrail.style.width = `${trailWidth}%`;
+                rigTrail.style.transform = `rotate(${-incline}deg)`;
+                
+                if (currentLeft >= 78) {
+                    delayTimer = 120; // 2 seconds delay
+                    currentLeft = 15;
+                    velocity = 0;
+                }
+            }
+        }
+
+        animId = requestAnimationFrame(simulationLoop);
+    };
+
+    // Slider listener
+    inclineSlider.addEventListener('input', (e) => {
+        incline = parseInt(e.target.value);
+        updateRigDisplay();
+        // reset simulation variables on change to reflect instantly
+        currentLeft = 15;
+        velocity = 0;
+        delayTimer = 0;
+    });
+
+    // Medium buttons listener
+    toggleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            toggleBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            coatingMedium = btn.getAttribute('data-medium');
+            
+            updateRigDisplay();
+            // reset simulation on change
+            currentLeft = 15;
+            velocity = 0;
+            delayTimer = 0;
         });
     });
 
-    // 6. Preview Card 3D Tilt Effect
-    const previewCard = document.getElementById('previewCard');
-    if (previewCard) {
-        previewCard.addEventListener('mousemove', (e) => {
-            const rect = previewCard.getBoundingClientRect();
-            const x = e.clientX - rect.left; // x position inside element
-            const y = e.clientY - rect.top;  // y position inside element
+    // Initialize display and start simulation loop
+    updateRigDisplay();
+    simulationLoop();
 
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-
-            const rotateX = ((y - centerY) / centerY) * -10; // max 10 degrees tilt
-            const rotateY = ((x - centerX) / centerX) * 10;
-
-            previewCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
-        });
-
-        previewCard.addEventListener('mouseleave', () => {
-            previewCard.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
-        });
-    }
-
-    // 7. Inquiry Form Submission Mock
+    // 6. Form Submission Handling (Institutional / Technical Form)
     const inquiryForm = document.getElementById('inquiryForm');
     const formSuccess = document.getElementById('formSuccess');
     const submitBtn = document.getElementById('submitBtn');
@@ -180,11 +214,11 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
 
             // Disable submit button & show loading state
-            const originalBtnContent = submitBtn.innerHTML;
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span>Processing Atelier Booking...</span>';
+            submitBtn.innerHTML = '<span>Transmitting...</span> <i data-lucide="loader"></i>';
+            lucide.createIcons();
 
-            // Mock network call
+            // Mock database insertion / SMTP relay delay
             setTimeout(() => {
                 inquiryForm.style.opacity = '0';
                 inquiryForm.style.pointerEvents = 'none';
@@ -194,26 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     formSuccess.classList.add('show');
                 }, 400);
 
-            }, 1800);
-        });
-    }
-
-    // 8. Newsletter Form Submit
-    const newsletterForm = document.getElementById('newsletterForm');
-    if (newsletterForm) {
-        newsletterForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const emailInput = newsletterForm.querySelector('input');
-            const originalVal = emailInput.value;
-            
-            emailInput.disabled = true;
-            emailInput.value = 'Subscribed. Welcome to Slips Morocco.';
-            
-            setTimeout(() => {
-                emailInput.disabled = false;
-                emailInput.value = '';
-                alert('Thank you! You have been added to our private dispatch.');
-            }, 2000);
+            }, 1500);
         });
     }
 });
